@@ -1,9 +1,6 @@
 import java.io.*;
 import java.util.*;
 
-import sun.misc.VM;
-
-
 public class BaconGame {
 	
 	// For generating the graph.
@@ -115,12 +112,13 @@ public class BaconGame {
 
 	// Run the code.
 	public static void main(String args[]) throws IOException{
-		// Make referencable maps from the input files
+		// Make referencable maps from the input file.
 		AdjacencyMapGraph<String, String> thisGraph = makeGraph();
-		for (String key : thisGraph.in.keySet()) {
-			System.out.println(key + " w " + thisGraph.in.get(key));
-		}
-		System.out.println("\n");
+//		// Check for graph working.
+//		for (String key : thisGraph.in.keySet()) {
+//			System.out.println(key + " w " + thisGraph.in.get(key));
+//		}
+//		System.out.println("\n");
 		// Infinite loop for the interface.
 		while (true) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
