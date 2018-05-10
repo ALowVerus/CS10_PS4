@@ -5,10 +5,7 @@ public class BaconGame {
 	
 	// For generating the graph.
 	public static BufferedReader buffer(String fileAddress) {
-		TreeMap thisMap = new TreeMap();
-		try {
-			return new BufferedReader(new FileReader(fileAddress));
-		}
+		try { return new BufferedReader(new FileReader(fileAddress)); }
 		catch (FileNotFoundException e) { System.out.println("File not found."); }
 		catch (IOException e) { System.out.println("Index out of bounds.");	}
 		return null;
@@ -27,14 +24,14 @@ public class BaconGame {
 		return thisMap;
 	}
 	public static AdjacencyMapGraph<String, String> makeGraph() {	
-		TreeMap<Integer, String> actorMap = makeMap("inputs/ps4/actorsTest.txt");
-		TreeMap<Integer, String> movieMap = makeMap("inputs/ps4/moviesTest.txt");
+		TreeMap<Integer, String> actorMap = makeMap("inputs/ps4/actors.txt");
+		TreeMap<Integer, String> movieMap = makeMap("inputs/ps4/movies.txt");
 		AdjacencyMapGraph<String, String> thisGraph = new AdjacencyMapGraph<String, String>();
 		for (Integer actorKey : actorMap.keySet()) {thisGraph.insertVertex(actorMap.get(actorKey));}
 		for (Integer movieKey : movieMap.keySet()) {thisGraph.insertVertex(movieMap.get(movieKey));}
 		
 		// Add links from actors to movie objects
-		BufferedReader lineFile = buffer("inputs/ps4/movie-actorsTest.txt"); String line;
+		BufferedReader lineFile = buffer("inputs/ps4/movie-actors.txt"); String line;
 		try {
 			while ((line = lineFile.readLine()) != null ) {
 				String[] thisLine = line.split("\\|");
@@ -74,7 +71,8 @@ public class BaconGame {
 			for (String neighbor : g.inNeighbors(current)) {
 				if (!universeGraph.hasVertex(neighbor)) {
 					universeGraph.insertVertex(neighbor);
-					universeGraph.insertDirected(current, neighbor, g.getLabel(current, neighbor));
+					universeGraph.insertDirected(neighbor, current, g.getLabel(current, neighbor));
+					queue.enqueue(neighbor);
 				}
 			}
 		}
@@ -88,8 +86,9 @@ public class BaconGame {
 		Iterator<String> iterator = tree.outNeighbors(current).iterator();
 		while (iterator.hasNext()) {
 			String next = iterator.next();
-			pathConnectionStrings.add(current + " was in " + next + " in " + tree.getLabel(current, next) + ".");
+			pathConnectionStrings.add(current + " was with " + next + " in " + tree.getLabel(current, next) + ".");
 			current = next;
+			iterator = tree.outNeighbors(current).iterator();
 		}
 		return pathConnectionStrings;
 	}
@@ -136,8 +135,9 @@ public class BaconGame {
 				List<String> pathConnectionStrings = getPath(tree, targetName);
 				Set<String> missingActors = missingVertices(thisGraph, tree);
 				for (String step : pathConnectionStrings) {
-					System.out.println(step + "\n");
+					System.out.println(step);
 				}
+				System.out.println("\n");
 			}
 		}
 	}	
