@@ -147,7 +147,7 @@ public class BaconGame {
 			// All systems are a go, initiate computation.
 			else {
 				System.out.println("Making connection from " + targetName + " to " + sourceName + "...");
-				AdjacencyMapGraph<String, String> tree = bfs(thisGraph, sourceName);
+				AdjacencyMapGraph<String, String> tree = bfs(thisGraph, targetName);
 				List<String> pathConnectionStrings = getPath(tree, sourceName);
 				Set<String> missingActors = missingVertices(thisGraph, tree);
 				
