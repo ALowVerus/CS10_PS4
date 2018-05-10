@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Adjancency Map implementation of the Graph interface
+ * Adjacency Map implementation of the Graph interface
  * Edge labels are stored in nested maps: { v1 -> { v2 -> edge } }
  * Inspired by and loosely based on Goodrich & Tamassia
  * 
