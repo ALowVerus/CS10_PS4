@@ -6,6 +6,7 @@ import sun.misc.VM;
 
 public class BaconGame {
 	
+	// For generating the graph.
 	public static BufferedReader buffer(String fileAddress) {
 		TreeMap thisMap = new TreeMap();
 		try {
@@ -15,7 +16,6 @@ public class BaconGame {
 		catch (IOException e) { System.out.println("Index out of bounds.");	}
 		return null;
 	}
-	
 	public static TreeMap<Integer, String> makeMap(String fileAddress) {
 		BufferedReader file = buffer(fileAddress);
 		TreeMap<Integer, String> thisMap = new TreeMap<Integer, String>();
@@ -29,7 +29,6 @@ public class BaconGame {
 		catch (IOException e){ System.out.println("Line failed to read."); }
 		return thisMap;
 	}
-	
 	public static AdjacencyMapGraph<String, String> makeGraph() {	
 		TreeMap<Integer, String> actorMap = makeMap("inputs/ps4/actorsTest.txt");
 		TreeMap<Integer, String> movieMap = makeMap("inputs/ps4/moviesTest.txt");
@@ -61,16 +60,18 @@ public class BaconGame {
 					}
 				}
 			}
+			thisGraph.removeVertex(movieMap.get(movieKey));
 		}
-
 		return thisGraph;
 	}
 	
+	// Return a graph with all vertices leading back to the source.
 	public static <V,E> AdjacencyMapGraph<String, String> bfs(Graph<String, String> g, String source) {
 		LinkedQueue<String> queue = new LinkedQueue<String>();
 		queue.enqueue(source);
 		String current;
 		AdjacencyMapGraph<String, String> universeGraph = new AdjacencyMapGraph<String, String>();
+		universeGraph.insertVertex(source);
 		while (!queue.isEmpty()) {
 			current = queue.dequeue();
 			for (String neighbor : g.inNeighbors(current)) {
@@ -82,16 +83,21 @@ public class BaconGame {
 		}
 		return universeGraph;
 	}
+	
+	// Given a BFS graph, find the path from a point to the source.
 	public static <V,E> ArrayList<String> getPath(Graph<String, String> tree, String origin) {
 		ArrayList<String> pathConnectionStrings = new ArrayList<String>();
 		String current = origin;
-		while (tree.outNeighbors(current) != null) {
-			String next = tree.outNeighbors(current).iterator().next();
+		Iterator<String> iterator = tree.outNeighbors(current).iterator();
+		while (iterator.hasNext()) {
+			String next = iterator.next();
 			pathConnectionStrings.add(current + " was in " + next + " in " + tree.getLabel(current, next) + ".");
 			current = next;
 		}
 		return pathConnectionStrings;
 	}
+	
+	// Add all vertices to a set, then remove everything in the BFS graph. Whatever's left was not added to the BFS graph.
 	public static <V,E> Set<String> missingVertices(Graph<String,String> graph, Graph<String,String> subgraph) {
 		TreeSet<String> thisSet = new TreeSet<String>();
 		Iterator<String> iterator;
@@ -107,27 +113,33 @@ public class BaconGame {
 		return 0;
 	}
 
+	// Run the code.
 	public static void main(String args[]) throws IOException{
 		// Make referencable maps from the input files
 		AdjacencyMapGraph<String, String> thisGraph = makeGraph();
+		for (String key : thisGraph.in.keySet()) {
+			System.out.println(key + " w " + thisGraph.in.get(key));
+		}
+		System.out.println("\n");
+		// Infinite loop for the interface.
 		while (true) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			System.out.print("Enter a source: \n");
 			String sourceName = reader.readLine();
 			System.out.println("Enter a target: ");
 			String targetName = reader.readLine();
-			if (!thisGraph.hasVertex(sourceName) || !thisGraph.hasVertex(targetName)) {
-				System.out.println("An input was invalid.");
-			}
-			else if (sourceName == targetName) {
-				System.out.println("Inputs are the same person.");
-			}
+			// Check for failed inputs.
+			if (!thisGraph.hasVertex(sourceName) || !thisGraph.hasVertex(targetName)) { System.out.println("An input was invalid."); }
+			else if (sourceName == targetName) { System.out.println("Inputs are the same person."); }
+			// All systems are a go, initiate computation.
 			else {
-				System.out.println("Making connection from " + sourceName + " to " + targetName + ". \n");
+				System.out.println("Making connection from " + sourceName + " to " + targetName + ".");
 				AdjacencyMapGraph<String, String> tree = bfs(thisGraph, sourceName);
 				List<String> pathConnectionStrings = getPath(tree, targetName);
 				Set<String> missingActors = missingVertices(thisGraph, tree);
-				
+				for (String step : pathConnectionStrings) {
+					System.out.println(step + "\n");
+				}
 			}
 		}
 	}	
