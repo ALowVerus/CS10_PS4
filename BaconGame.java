@@ -103,8 +103,7 @@ public class BaconGame {
 	// Add all vertices to a set, then remove everything in the BFS graph. Whatever's left was not added to the BFS graph.
 	public static <V,E> Set<String> missingVertices(AdjacencyMapGraph<String,String> graph, AdjacencyMapGraph<String,String> subgraph) {
 		TreeSet<String> thisSet = new TreeSet<String>();
-		Iterator<String> iterator;
-		iterator = graph.vertices().iterator();
+		Iterator<String> iterator = graph.vertices().iterator();
 		while (iterator.hasNext()) { thisSet.add(iterator.next()); }
 		iterator = subgraph.vertices().iterator();
 		while (iterator.hasNext()) { thisSet.remove(iterator.next()); }
@@ -112,10 +111,10 @@ public class BaconGame {
 	}
 	
 	// I have no idea what this is supposed to be.
-	public static <V,E> String averageSeparation(AdjacencyMapGraph<String,String> tree, String root) {
+	public static double averageSeparation(AdjacencyMapGraph<String,String> tree, String root) {
 		double totalSeparation = (double)getSubHeight(tree, root, 0);
 		double size = (double)tree.numVertices();
-		return String.valueOf(totalSeparation / size);
+		return totalSeparation / size;
 	}
 	public static <V,E> int getSubHeight(AdjacencyMapGraph<String,String> tree, String currentVertex, int currentHeight) {
 		int i = currentHeight;
@@ -124,16 +123,24 @@ public class BaconGame {
 		}
 		return i;
 	}
+	
+	public static List<String> findBestAverageSeparations(AdjacencyMapGraph<String,String> tree){
+		List<String> bestSeps = new ArrayList<String>();
+		Iterator<String> iterator = tree.vertices().iterator();
+		while(iterator.hasNext()) {
+			String next = iterator.next();
+			if(averageSeparation(tree, next) < 4) {
+				bestSeps.add(next);
+			}
+		}
+		return bestSeps;
+	}
 
 	// Run the code.
 	public static void main(String args[]) throws IOException{
 		// Make referencable maps from the input file.
 		AdjacencyMapGraph<String, String> thisGraph = makeGraph();
-//		// Check for graph working.
-//		for (String key : thisGraph.in.keySet()) {
-//			System.out.println(key + " w " + thisGraph.in.get(key));
-//		}
-//		System.out.println("\n");
+
 		// Infinite loop for the interface.
 		while (true) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -177,6 +184,8 @@ public class BaconGame {
 				
 				// Print average destination length
 				System.out.println(averageSeparation(tree, centUniName));
+				
+				System.out.println(findBestAverageSeparations(thisGraph));
 				
 				// Break
 				System.out.println("");
