@@ -134,10 +134,25 @@ public class BaconGame {
 				AdjacencyMapGraph<String, String> tree = bfs(thisGraph, sourceName);
 				List<String> pathConnectionStrings = getPath(tree, targetName);
 				Set<String> missingActors = missingVertices(thisGraph, tree);
-				for (String step : pathConnectionStrings) {
-					System.out.println(step);
+				// Print Bacon number
+				System.out.println(targetName + "'s " + sourceName + " number is " + String.valueOf(pathConnectionStrings.size()) + ".");
+				// Print connection steps
+				for (String step : pathConnectionStrings) { System.out.println(step); }
+				// Print missing actors
+				String s = "";
+				int n = 0;
+				for (String vertex : missingActors) {
+					s += vertex + ", "; 
+					n += 1;
+					if (n >= 20) {
+						s += "\n";
+						n = 0;
+					}
 				}
-				System.out.println("\n");
+				System.out.println("The missing links were:");
+				System.out.println(s);
+				// Break
+				System.out.println("");
 			}
 		}
 	}	
