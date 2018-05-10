@@ -82,15 +82,23 @@ public class BaconGame {
 	// Given a BFS graph, find the path from a point to the source.
 	public static <V,E> ArrayList<String> getPath(Graph<String, String> tree, String origin) {
 		ArrayList<String> pathConnectionStrings = new ArrayList<String>();
-		String current = origin;
-		Iterator<String> iterator = tree.outNeighbors(current).iterator();
-		while (iterator.hasNext()) {
-			String next = iterator.next();
-			pathConnectionStrings.add(current + " was with " + next + " in " + tree.getLabel(current, next) + ".");
-			current = next;
-			iterator = tree.outNeighbors(current).iterator();
+		try {
+			String current = origin;
+			Iterator<String> iterator = tree.outNeighbors(current).iterator();
+			while (iterator.hasNext()) {
+				String next = iterator.next();
+				pathConnectionStrings.add(current + " was with " + next + " in " + tree.getLabel(current, next) + ".");
+				current = next;
+				iterator = tree.outNeighbors(current).iterator();
+				return pathConnectionStrings;
+			}
 		}
-		return pathConnectionStrings;
+
+		catch (NullPointerException e){
+			System.out.println("No path to " + origin);
+		}
+		return pathConnectionStrings;		
+		
 	}
 	
 	// Add all vertices to a set, then remove everything in the BFS graph. Whatever's left was not added to the BFS graph.
@@ -121,21 +129,27 @@ public class BaconGame {
 		// Infinite loop for the interface.
 		while (true) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-			System.out.print("Enter a source: \n");
+			System.out.print("Enter a center of universe: \n");
 			String sourceName = reader.readLine();
-			System.out.println("Enter a target: ");
+			System.out.println("Enter an actor: ");
 			String targetName = reader.readLine();
 			// Check for failed inputs.
 			if (!thisGraph.hasVertex(sourceName) || !thisGraph.hasVertex(targetName)) { System.out.println("An input was invalid."); }
 			else if (sourceName == targetName) { System.out.println("Inputs are the same person."); }
 			// All systems are a go, initiate computation.
 			else {
-				System.out.println("Making connection from " + sourceName + " to " + targetName + ".");
+				System.out.println("Making connection from " + targetName + " to " + sourceName + ".");
 				AdjacencyMapGraph<String, String> tree = bfs(thisGraph, sourceName);
-				List<String> pathConnectionStrings = getPath(tree, targetName);
+				List<String> pathConnectionStrings = getPath(tree, sourceName);
 				Set<String> missingActors = missingVertices(thisGraph, tree);
 				// Print Bacon number
-				System.out.println(targetName + "'s " + sourceName + " number is " + String.valueOf(pathConnectionStrings.size()) + ".");
+				if (pathConnectionStrings.size() > 0 || sourceName.equals(targetName)) {
+					System.out.println(targetName + "'s " + sourceName + " number is " + String.valueOf(pathConnectionStrings.size()) + ".");
+				}
+				else {
+					System.out.println(targetName + " has no " + sourceName + " number.");
+				}
+				
 				// Print connection steps
 				for (String step : pathConnectionStrings) { System.out.println(step); }
 				// Print missing actors
@@ -149,10 +163,10 @@ public class BaconGame {
 						n = 0;
 					}
 				}
-				System.out.println("The missing links were:");
-				System.out.println(s);
-				// Break
-				System.out.println("");
+//				System.out.println("The missing links were:");
+//				System.out.println(s);
+//				// Break
+//				System.out.println("");
 			}
 		}
 	}	
