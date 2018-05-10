@@ -12,11 +12,13 @@ public class Actor {
 	}
 	
 	// Getters
+	public String getName() {return name;}
 	public boolean getVisited() {return visited;}
 	public ArrayList<Actor> getPath(){return path;}
 	public int getDistance() {return distance;}
 	
 	// Setters
+	public void setName(String name) {this.name = name;}
 	public void setVisited(boolean visited) {this.visited = visited;}
 	public void setPath(ArrayList<Actor> path) {this.path = path;}
 	public void setDistance(int distance) {this.distance = distance;}

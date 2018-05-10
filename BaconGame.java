@@ -22,14 +22,14 @@ public class BaconGame {
 		return null;
 	}
 	
-	public static TreeMap<String, String> makeMap(String fileAddress) {
+	public static TreeMap<String, Actor> makeMap(String fileAddress) {
 		BufferedReader file = buffer(fileAddress);
-		TreeMap<String, String> thisMap = new TreeMap();
+		TreeMap<String, Actor> thisMap = new TreeMap();
 		String line;
 		try {
 			while ((line = file.readLine()) != null) {
 				String[] thisLine = line.split("\\|");
-				thisMap.put(thisLine[0], thisLine[1]);
+				thisMap.put(thisLine[0], new Actor(thisLine[1]));
 			}
 		}
 		catch (IOException e){ System.out.println("Line failed to read."); }
@@ -71,39 +71,37 @@ public class BaconGame {
 
 	public static void main(String args[]){
 		// Make referencable maps from the input files
-		TreeMap<String, String> actorMap = makeMap("inputs/ps4/actorsTest.txt");
-		TreeMap<String, String> movieMap = makeMap("inputs/ps4/moviesTest.txt");
+		TreeMap<String, Actor> actorMap = makeMap("inputs/ps4/actorsTest.txt");
+		TreeMap<String, Actor> movieMap = makeMap("inputs/ps4/moviesTest.txt");
 		
-		AdjacencyMapGraph thisGraph = new AdjacencyMapGraph();
-		for (Object actorKey : actorMap.keySet()) {thisGraph.insertVertex(new Actor(actorMap.get(actorKey)));}
-		for (Object movieKey : movieMap.keySet()) {thisGraph.insertVertex(movieMap.get(movieKey));}
+		AdjacencyMapGraph<Actor, String> thisGraph = new AdjacencyMapGraph<Actor, String>();
+		for (String actorKey : actorMap.keySet()) {thisGraph.insertVertex(actorMap.get(actorKey));}
+		for (String movieKey : movieMap.keySet()) {thisGraph.insertVertex(movieMap.get(movieKey));}
 		
 		// Add links from actors to movie objects
 		BufferedReader lineFile = buffer("inputs/ps4/movie-actorsTest.txt"); String line;
 		try {
 			while ((line = lineFile.readLine()) != null ) {
 				String[] thisLine = line.split("\\|");
-				Object movie = movieMap.get(thisLine[0]);
-				Object actor = actorMap.get(thisLine[1]);
+				Actor movie = movieMap.get(thisLine[0]);
+				Actor actor = actorMap.get(thisLine[1]);
 				thisGraph.insertUndirected(actor, movie, "Bump");
-				System.out.println("link from " + movie + " to " + actor);
+				// System.out.println("link from " + movie.getName() + " to " + actor.getName());
 			}
 		}
 		catch (IOException e) { System.out.println("Line failed to read."); }
 		
 		// Consolidate the movie objects, turning them into the names of direct links from actor to actor
-		for (Object movie : movieMap.keySet()) {
-			Iterable<VM> neighbors = thisGraph.inNeighbors(movie);
-			for (Object actor : neighbors) {
-				for (Object neighbor : neighbors) {
-					if (actor != neighbor) {
-						thisGraph.insertUndirected(actor, neighbor, movie);
+		for (String movieKey : movieMap.keySet()) {
+			Iterable<Actor> neighbors = thisGraph.inNeighbors(movieMap.get(movieKey));
+			for (Actor actor : neighbors) {
+				for (Actor neighbor : neighbors) {
+					if (actor != neighbor && !thisGraph.hasEdge(actor, neighbor)) {
+						thisGraph.insertUndirected(actor, neighbor, movieMap.get(movieKey).getName());
+						// System.out.println("link from " + neighbor.getName() + " to " + actor.getName());
 					}
 				}
 			}
 		}
-		
-		System.out.println("Blah");
-	}
-	
+	}	
 }
