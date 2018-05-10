@@ -113,8 +113,17 @@ public class BaconGame {
 	}
 	
 	// I have no idea what this is supposed to be.
-	public static <V,E> double averageSeparation(Graph<V,E> tree, V root) {
-		return 0;
+	public static <V,E> double averageSeparation(Graph<String,String> tree, String root) {
+		double totalSeparation = (double)getSubHeight(tree, root, 0);
+		double size = (double)tree.numVertices();
+		return totalSeparation / size;
+	}
+	public static <V,E> int getSubHeight(Graph<String,String> tree, String currentVertex, int currentHeight) {
+		int i = currentHeight;
+		for (String parent : tree.inNeighbors(currentVertex)) {
+			i += getSubHeight(tree, parent, currentHeight + 1);
+		}
+		return i;
 	}
 
 	// Run the code.
