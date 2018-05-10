@@ -6,12 +6,6 @@ import sun.misc.VM;
 
 public class BaconGame {
 	
-	public class DistanceComparator implements Comparator<Actor> {
-		public int compare(Actor a, Actor b) {
-			return a.getDistance() - b.getDistance();
-		}
-	}
-	
 	public static BufferedReader buffer(String fileAddress) {
 		TreeMap thisMap = new TreeMap();
 		try {
@@ -36,44 +30,7 @@ public class BaconGame {
 		return thisMap;
 	}
 	
-	
-	public static <V,E> Graph<V,E> bfs(Graph<V,E> g, V source) {
-		
-	}
-	public static <V,E> List<V> getPath(Graph<V,E> tree, V v) {
-		
-	}
-	public static <V,E> Set<V> missingVertices(Graph<V,E> graph, Graph<V,E> subgraph) {
-		
-	}
-	public static <V,E> double averageSeparation(Graph<V,E> tree, V root) {
-		
-	}
-	
-	public int findBaconNumber(Graph<Actor, Integer> theGraph, Actor chosen, Actor goal) {
-		Actor current = chosen;
-		Iterator<Actor> iterator = theGraph.outNeighbors(current).iterator(); 
-		PriorityQueue<Actor> theQueue = new PriorityQueue<Actor>();
-		
-		theQueue.add(chosen);
-		while(theQueue.size() > 0)
-			
-		
-//		while(iterator.hasNext()) {
-//			Actor actor = iterator.next();
-//			if(actor.equals(goal)) {
-//				return actor.getDistance();
-//			}	
-//		}
-		return -1;
-
-	}
-
-	public static void main(String args[]){
-		// Make referencable maps from the input files
-		TreeMap<String, Actor> actorMap = makeMap("inputs/ps4/actorsTest.txt");
-		TreeMap<String, Actor> movieMap = makeMap("inputs/ps4/moviesTest.txt");
-		
+	public static AdjacencyMapGraph<Actor, String> makeGraph(TreeMap<String, Actor> actorMap, TreeMap<String, Actor> movieMap) {		
 		AdjacencyMapGraph<Actor, String> thisGraph = new AdjacencyMapGraph<Actor, String>();
 		for (String actorKey : actorMap.keySet()) {thisGraph.insertVertex(actorMap.get(actorKey));}
 		for (String movieKey : movieMap.keySet()) {thisGraph.insertVertex(movieMap.get(movieKey));}
@@ -101,6 +58,76 @@ public class BaconGame {
 						// System.out.println("link from " + neighbor.getName() + " to " + actor.getName());
 					}
 				}
+			}
+		}
+
+		return thisGraph;
+	}
+	
+	public static <V,E> AdjacencyMapGraph<Actor, String> bfs(Graph<Actor, String> g, Actor source) {
+		LinkedQueue<Actor> queue = new LinkedQueue<Actor>();
+		queue.enqueue(source);
+		Actor current = null;
+		AdjacencyMapGraph<Actor, String> universeGraph = new AdjacencyMapGraph<Actor, String>();
+		while (!queue.isEmpty()) {
+			current = queue.dequeue();
+			for (Actor neighbor : g.inNeighbors(current)) {
+				if (!universeGraph.hasVertex(neighbor)) {
+					universeGraph.insertVertex(neighbor);
+					universeGraph.insertDirected(current, neighbor, g.getLabel(current, neighbor));
+				}
+			}
+		}
+		return universeGraph;
+	}
+	public static <V,E> ArrayList<String> getPath(Graph<Actor, String> tree, Actor origin) {
+		ArrayList<String> pathConnectionStrings = new ArrayList<String>();
+		Actor current = origin;
+		while (tree.outNeighbors(current) != null) {
+			Actor next = tree.outNeighbors(current).iterator().next();
+			pathConnectionStrings.add(current.getName() + " was in " + next.getName() + " in " + tree.getLabel(current, next) + ".");
+			current = next;
+		}
+		return pathConnectionStrings;
+	}
+	public static <V,E> Set<Actor> missingVertices(Graph<Actor,String> graph, Graph<Actor,String> subgraph) {
+		TreeSet<Actor> thisSet = new TreeSet<Actor>();
+		Iterator<Actor> iterator;
+		iterator = graph.vertices().iterator();
+		while (iterator.hasNext()) { thisSet.add(iterator.next()); }
+		iterator = subgraph.vertices().iterator();
+		while (iterator.hasNext()) { thisSet.remove(iterator.next()); }
+		return thisSet;
+	}
+	
+	// I have no idea what this is supposed to be.
+	public static <V,E> double averageSeparation(Graph<V,E> tree, V root) {
+		return 0;
+	}
+
+	public static void main(String args[]) throws IOException{
+		// Make referencable maps from the input files
+		TreeMap<String, Actor> actorMap = makeMap("inputs/ps4/actorsTest.txt");
+		TreeMap<String, Actor> movieMap = makeMap("inputs/ps4/moviesTest.txt");
+		AdjacencyMapGraph<Actor, String> thisGraph = makeGraph(actorMap, movieMap);
+		while (true) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			System.out.print("Enter a source: \n");
+			String sourceName = reader.readLine();
+			System.out.println("Enter a target: ");
+			String targetName = reader.readLine();
+			if (actorMap.get(sourceName) == null || actorMap.get(targetName) == null) {
+				System.out.println("An input was invalid.");
+			}
+			else if (sourceName == targetName) {
+				System.out.println("Inputs are the same person.");
+			}
+			else {
+				System.out.println("Making connection from " + sourceName + " to " + targetName + ". \n");
+				AdjacencyMapGraph<Actor, String> tree = bfs(thisGraph, actorMap.get(targetName));
+				List<String> pathConnectionStrings = getPath(tree, actorMap.get(sourceName));
+				Set<Actor> missingActors = missingVertices(thisGraph, tree);
+				
 			}
 		}
 	}	
