@@ -60,7 +60,7 @@ public class BaconGame {
 	}
 	
 	// Return a graph with all vertices leading back to the source.
-	public static <V,E> AdjacencyMapGraph<String, String> bfs(Graph<String, String> g, String source) {
+	public static <V,E> AdjacencyMapGraph<String, String> bfs(AdjacencyMapGraph<String, String> g, String source) {
 		LinkedQueue<String> queue = new LinkedQueue<String>();
 		queue.enqueue(source);
 		String current;
@@ -80,7 +80,7 @@ public class BaconGame {
 	}
 	
 	// Given a BFS graph, find the path from a point to the source.
-	public static <V,E> ArrayList<String> getPath(Graph<String, String> tree, String origin) {
+	public static <V,E> ArrayList<String> getPath(AdjacencyMapGraph<String, String> tree, String origin) {
 		ArrayList<String> pathConnectionStrings = new ArrayList<String>();
 		try {
 			String current = origin;
@@ -102,7 +102,7 @@ public class BaconGame {
 	}
 	
 	// Add all vertices to a set, then remove everything in the BFS graph. Whatever's left was not added to the BFS graph.
-	public static <V,E> Set<String> missingVertices(Graph<String,String> graph, Graph<String,String> subgraph) {
+	public static <V,E> Set<String> missingVertices(AdjacencyMapGraph<String,String> graph, AdjacencyMapGraph<String,String> subgraph) {
 		TreeSet<String> thisSet = new TreeSet<String>();
 		Iterator<String> iterator;
 		iterator = graph.vertices().iterator();
@@ -113,12 +113,12 @@ public class BaconGame {
 	}
 	
 	// I have no idea what this is supposed to be.
-	public static <V,E> double averageSeparation(Graph<String,String> tree, String root) {
+	public static <V,E> double averageSeparation(AdjacencyMapGraph<String,String> tree, String root) {
 		double totalSeparation = (double)getSubHeight(tree, root, 0);
 		double size = (double)tree.numVertices();
 		return totalSeparation / size;
 	}
-	public static <V,E> int getSubHeight(Graph<String,String> tree, String currentVertex, int currentHeight) {
+	public static <V,E> int getSubHeight(AdjacencyMapGraph<String,String> tree, String currentVertex, int currentHeight) {
 		int i = currentHeight;
 		for (String parent : tree.inNeighbors(currentVertex)) {
 			i += getSubHeight(tree, parent, currentHeight + 1);
