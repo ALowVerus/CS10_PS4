@@ -7,7 +7,6 @@ public class BaconGame {
 	public static BufferedReader buffer(String fileAddress) {
 		try { return new BufferedReader(new FileReader(fileAddress)); }
 		catch (FileNotFoundException e) { System.out.println("File not found."); }
-		catch (IOException e) { System.out.println("Index out of bounds.");	}
 		return null;
 	}
 	public static TreeMap<Integer, String> makeMap(String fileAddress) {
@@ -113,10 +112,10 @@ public class BaconGame {
 	}
 	
 	// I have no idea what this is supposed to be.
-	public static <V,E> double averageSeparation(AdjacencyMapGraph<String,String> tree, String root) {
+	public static <V,E> String averageSeparation(AdjacencyMapGraph<String,String> tree, String root) {
 		double totalSeparation = (double)getSubHeight(tree, root, 0);
 		double size = (double)tree.numVertices();
-		return totalSeparation / size;
+		return String.valueOf(totalSeparation / size);
 	}
 	public static <V,E> int getSubHeight(AdjacencyMapGraph<String,String> tree, String currentVertex, int currentHeight) {
 		int i = currentHeight;
@@ -147,10 +146,11 @@ public class BaconGame {
 			else if (sourceName == targetName) { System.out.println("Inputs are the same person."); }
 			// All systems are a go, initiate computation.
 			else {
-				System.out.println("Making connection from " + targetName + " to " + sourceName + ".");
+				System.out.println("Making connection from " + targetName + " to " + sourceName + "...");
 				AdjacencyMapGraph<String, String> tree = bfs(thisGraph, sourceName);
 				List<String> pathConnectionStrings = getPath(tree, sourceName);
 				Set<String> missingActors = missingVertices(thisGraph, tree);
+				
 				// Print Bacon number
 				if (pathConnectionStrings.size() > 0 || sourceName.equals(targetName)) {
 					System.out.println(targetName + "'s " + sourceName + " number is " + String.valueOf(pathConnectionStrings.size()) + ".");
@@ -161,21 +161,25 @@ public class BaconGame {
 				
 				// Print connection steps
 				for (String step : pathConnectionStrings) { System.out.println(step); }
-				// Print missing actors
-				String s = "";
-				int n = 0;
-				for (String vertex : missingActors) {
-					s += vertex + ", "; 
-					n += 1;
-					if (n >= 20) {
-						s += "\n";
-						n = 0;
-					}
-				}
+//				// Print missing actors
+//				String s = "";
+//				int n = 0;
+//				for (String vertex : missingActors) {
+//					s += vertex + ", "; 
+//					n += 1;
+//					if (n >= 20) {
+//						s += "\n";
+//						n = 0;
+//					}
+//				}
 //				System.out.println("The missing links were:");
 //				System.out.println(s);
-//				// Break
-//				System.out.println("");
+				
+				// Print average destination length
+				System.out.println(averageSeparation(tree, sourceName));
+				
+				// Break
+				System.out.println("");
 			}
 		}
 	}	
