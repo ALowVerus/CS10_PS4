@@ -138,25 +138,25 @@ public class BaconGame {
 		while (true) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			System.out.print("Enter a center of universe: \n");
-			String sourceName = reader.readLine();
+			String centUniName = reader.readLine();
 			System.out.println("Enter an actor: ");
 			String targetName = reader.readLine();
 			// Check for failed inputs.
-			if (!thisGraph.hasVertex(sourceName) || !thisGraph.hasVertex(targetName)) { System.out.println("An input was invalid."); }
-			else if (sourceName == targetName) { System.out.println("Inputs are the same person."); }
+			if (!thisGraph.hasVertex(centUniName) || !thisGraph.hasVertex(targetName)) { System.out.println("An input was invalid."); }
+			else if (centUniName == targetName) { System.out.println("Inputs are the same person."); }
 			// All systems are a go, initiate computation.
 			else {
-				System.out.println("Making connection from " + targetName + " to " + sourceName + "...");
-				AdjacencyMapGraph<String, String> tree = bfs(thisGraph, targetName);
-				List<String> pathConnectionStrings = getPath(tree, sourceName);
+				System.out.println("Making connection from " + centUniName + " to " + targetName + "...");
+				AdjacencyMapGraph<String, String> tree = bfs(thisGraph, centUniName);
+				List<String> pathConnectionStrings = getPath(tree, targetName);
 				Set<String> missingActors = missingVertices(thisGraph, tree);
 				
 				// Print Bacon number
-				if (pathConnectionStrings.size() > 0 || sourceName.equals(targetName)) {
-					System.out.println(targetName + "'s " + sourceName + " number is " + String.valueOf(pathConnectionStrings.size()) + ".");
+				if (pathConnectionStrings.size() > 0) {
+					System.out.println(targetName + "'s " + centUniName + " number is " + String.valueOf(pathConnectionStrings.size()) + ".");
 				}
 				else {
-					System.out.println(targetName + " has no " + sourceName + " number.");
+					System.out.println(targetName + " has no " + centUniName + " number.");
 				}
 				
 				// Print connection steps
@@ -176,7 +176,7 @@ public class BaconGame {
 //				System.out.println(s);
 				
 				// Print average destination length
-				System.out.println(averageSeparation(tree, sourceName));
+				System.out.println(averageSeparation(tree, centUniName));
 				
 				// Break
 				System.out.println("");
