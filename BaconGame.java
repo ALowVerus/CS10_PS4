@@ -124,71 +124,107 @@ public class BaconGame {
 		return i;
 	}
 	
-	public static List<String> findBestAverageSeparations(AdjacencyMapGraph<String,String> tree){
-		List<String> bestSeps = new ArrayList<String>();
-		Iterator<String> iterator = tree.vertices().iterator();
-		while(iterator.hasNext()) {
-			String next = iterator.next();
-			if(averageSeparation(tree, next) < 4) {
-				bestSeps.add(next);
+	public static void findBestAverageSeparations(AdjacencyMapGraph<String,String> graph){
+		// Find contiguous networks
+		Iterator<String> allVertices = graph.vertices().iterator();
+		TreeSet<String> remainingVertices = new TreeSet<String>();
+		while (allVertices.hasNext()) { remainingVertices.add(allVertices.next()); }
+		ArrayList<TreeSet<String>> networks = new ArrayList<TreeSet<String>>();
+		while (!remainingVertices.isEmpty()) {
+			String current = remainingVertices.first();
+			Iterator<String> map = bfs(graph, current).vertices().iterator();
+			TreeSet<String> network = new TreeSet<String>();
+			while (map.hasNext()) { 
+				String next = map.next();
+				network.add(next);
+				remainingVertices.remove(next);
+			}
+			networks.add(network);
+		}
+		
+		// Find biggest, which will be the 7494 strong list
+		TreeSet<String> biggest = networks.remove(0);
+		for (TreeSet<String> network : networks) {
+			if (biggest.size() < network.size()) {
+				biggest = network;
 			}
 		}
-		return bestSeps;
+				
+		// Find best average in biggest
+		String bestVert = "Placeholder";
+		double bestAve = -1.0;
+		for (String newVert : biggest) {
+			AdjacencyMapGraph<String, String> tree = bfs(graph, newVert);
+			double newAve = averageSeparation(tree, newVert);
+			if (bestAve > newAve || bestAve < 0) {
+				bestAve = newAve;
+				bestVert = newVert;
+				System.out.println("The current best node is " + bestVert + ", with an average length of " + String.valueOf(bestAve));
+			}
+		}
+		
+		// Print result
+		System.out.println("The best node is " + bestVert + ", with an average length of " + String.valueOf(bestAve));
 	}
 
 	// Run the code.
 	public static void main(String args[]) throws IOException{
 		// Make referencable maps from the input file.
 		AdjacencyMapGraph<String, String> thisGraph = makeGraph();
+		System.out.println("Enter ~GETBEST~ as your center to find the BEST center of the universe.");
 
 		// Infinite loop for the interface.
 		while (true) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			System.out.print("Enter a center of universe: \n");
 			String centUniName = reader.readLine();
-			System.out.println("Enter an actor: ");
-			String targetName = reader.readLine();
-			// Check for failed inputs.
-			if (!thisGraph.hasVertex(centUniName) || !thisGraph.hasVertex(targetName)) { System.out.println("An input was invalid."); }
-			else if (centUniName == targetName) { System.out.println("Inputs are the same person."); }
-			// All systems are a go, initiate computation.
+			if (centUniName == "GETBEST") {
+				findBestAverageSeparations(thisGraph);
+			}
 			else {
-				System.out.println("Making connection from " + centUniName + " to " + targetName + "...");
-				AdjacencyMapGraph<String, String> tree = bfs(thisGraph, centUniName);
-				List<String> pathConnectionStrings = getPath(tree, targetName);
-				Set<String> missingActors = missingVertices(thisGraph, tree);
-				
-				// Print Bacon number
-				if (pathConnectionStrings.size() > 0) {
-					System.out.println(targetName + "'s " + centUniName + " number is " + String.valueOf(pathConnectionStrings.size()) + ".");
-				}
+				System.out.println("Enter an actor: ");
+				String targetName = reader.readLine();
+				// Check for failed inputs.
+				if (!thisGraph.hasVertex(centUniName) || !thisGraph.hasVertex(targetName)) { System.out.println("An input was invalid."); }
+				else if (centUniName == targetName) { System.out.println("Inputs are the same person."); }
+				// All systems are a go, initiate computation.
 				else {
-					System.out.println(targetName + " has no " + centUniName + " number.");
-				}
-				
-				// Print connection steps
-				for (String step : pathConnectionStrings) { System.out.println(step); }
-//				// Print missing actors
-//				String s = "";
-//				int n = 0;
-//				for (String vertex : missingActors) {
-//					s += vertex + ", "; 
-//					n += 1;
-//					if (n >= 20) {
-//						s += "\n";
-//						n = 0;
+					System.out.println("Making connection from " + centUniName + " to " + targetName + "...");
+					AdjacencyMapGraph<String, String> tree = bfs(thisGraph, centUniName);
+					List<String> pathConnectionStrings = getPath(tree, targetName);
+					
+					// Print Bacon number
+					if (pathConnectionStrings.size() > 0) {
+						System.out.println(targetName + "'s " + centUniName + " number is " + String.valueOf(pathConnectionStrings.size()) + ".");
+					}
+					else {
+						System.out.println(targetName + " has no " + centUniName + " number.");
+					}
+					
+					// Print connection steps
+					for (String step : pathConnectionStrings) { System.out.println(step); }
+					
+//					// Print missing actors
+//					Set<String> missingActors = missingVertices(thisGraph, tree);
+//					String s = "";
+//					int n = 0;
+//					for (String vertex : missingActors) {
+//						s += vertex + ", "; 
+//						n += 1;
+//						if (n >= 20) {
+//							s += "\n";
+//							n = 0;
+//						}
 //					}
-//				}
-//				System.out.println("The missing links were:");
-//				System.out.println(s);
-				
-				// Print average destination length
-				System.out.println(averageSeparation(tree, centUniName));
-				
-				System.out.println(findBestAverageSeparations(thisGraph));
-				
-				// Break
-				System.out.println("");
+//					System.out.println("The missing links were:");
+//					System.out.println(s);
+					
+					// Print average destination length
+					System.out.println(averageSeparation(tree, centUniName));
+					
+					// Break
+					System.out.println("");
+				}
 			}
 		}
 	}	
